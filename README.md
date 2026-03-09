@@ -26,3 +26,5 @@ The mPower custom application framework provides a highly flexible minimal frame
 | 7.0.0 | python3 | 3.10.13 |
 | 7.1.0 | python3 | 3.10.15 |
 | 7.2.0 | python3 | 3.10.16 |
+| 7.3.0 | python3 | 3.10.18 |
+| 7.4.0 | python3 | TBD|
