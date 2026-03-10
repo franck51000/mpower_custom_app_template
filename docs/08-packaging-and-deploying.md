@@ -14,11 +14,24 @@ Creating a proper application package is critical for successful installation. T
 -   **Line endings:** All script files used in the app must use UNIX (LF) line endings
 -   **Filename:** Can be any name (doesn't need to match AppName)
 
-`Check permissions before packaging`
+**Check permissions before packaging**
+
+```bash
+$ ls -l Install Start
+-rwxr-xr-x  Install
+-rwxr-xr-x  Start
+# Set if needed
+$ chmod +x Install Start
+```
 
 **Creating the Package (Linux/Mac)**
 
 Navigate to your application source directory and create the archive:
+
+```bash
+$ cd /path/to/MyApplication/src
+$ tar --hard-dereference -hczf MyApplication_1_0_0.tgz *
+```
 
 **Important tar Options**
 
@@ -42,20 +55,41 @@ Navigate to your application source directory and create the archive:
 
 Before deploying, verify your package structure:
 
+```bash
+$ tar -tzf MyApplication_1_0_0.tgz
+```
+
 Expected output:
+
+```
+manifest.json
+Install
+Start
+status.json
+config/app.conf
+myapp.py
+lib/helper.py
+```
 
 **Common Packaging Mistakes**
 
+Incorrect nesting (files must be at the top level, not in a subdirectory):
+```
+WRONG:
+MyApplication/
+└── MyApplication/
+    ├── manifest.json
+    └── ...
+CORRECT:
+MyApplication/
+├── manifest.json
+└── ...
+```
+
 -   **Extra directory level**
 
-```{=html}
-<!-- -->
-```
 -   **Solution:** Always cd into the source directory before creating the tar
 
-```{=html}
-<!-- -->
-```
 -   **Windows line endings**
 
 -   **Missing required files**
@@ -64,9 +98,51 @@ Expected output:
 
 If developing on Windows, use Git Bash or WSL to create the package with proper line endings and permissions:
 
+```bash
+# In Git Bash or WSL
+$ cd /c/Users/YourName/MyApplication/src
+$ chmod +x Install Start
+$ tar --hard-dereference -hczf MyApplication_1_0_0.tgz *
+```
+
+**Check for Windows line endings**
+
+```bash
+$ file Install
+Install: Bourne-Again shell script, ASCII text executable, with CRLF line terminators  # WRONG
+Install: Bourne-Again shell script, ASCII text executable  # CORRECT
+# Convert if needed
+$ dos2unix Install Start manifest.json
+```
+
 **Automated Packaging Script**
 
 Create a script to automate packaging with verification:
+
+```bash
+#!/bin/bash
+# package.sh - Create and verify custom app package
+APP_ID="9dad30bf-8917-4fde-8f86-6b7d2216b130"
+SRC_DIR="./src"
+OUTPUT_DIR="./dist"
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "Verifying required files..."
+for file in manifest.json Install Start; do
+    if [ ! -f "$SRC_DIR/$file" ]; then
+        echo "ERROR: Missing required file: $file"
+        exit 1
+    fi
+done
+
+chmod +x "$SRC_DIR/Install" "$SRC_DIR/Start"
+
+VERSION=$(grep AppVersion "$SRC_DIR/manifest.json" | cut -d'"' -f4)
+cd "$SRC_DIR"
+tar --hard-dereference -hczf "../$OUTPUT_DIR/MyApp_${VERSION}.tgz" *
+echo "Package created: $OUTPUT_DIR/MyApp_${VERSION}.tgz"
+```
 
 ## Manual Installation
 
@@ -81,11 +157,27 @@ Manual installation is useful for development and testing before deploying to pr
 
 **Step 1: Copy Package to mPower Device**
 
+```bash
+$ scp MyApplication_1_0_0.tgz admin@192.168.1.100:/tmp/
+```
+
 **Step 2: SSH to mPower Device**
 
-**Step 4: Switch to root user**
+```bash
+$ ssh admin@192.168.1.100
+```
 
-**Step 3: Install Application**
+**Step 3: Switch to root user**
+
+```bash
+$ sudo -s
+```
+
+**Step 4: Install Application**
+
+```bash
+$ app-manager --command install --appid 9dad30bf-8917-4fde-8f86-6b7d2216b130 --appfile /tmp/MyApplication_1_0_0.tgz
+```
 
 The installation process
 
@@ -96,13 +188,34 @@ The installation process
 -   Starts the application via the Start script
 -   Registers with app-manager
 
-**Step 4: Verify Installation**
+**Step 5: Verify Installation**
+
+```bash
+$ app-manager --command status
+```
 
 Expected output:
+```
+Installed Apps:
+  MyApplication v1.0.0 - RUNNING - Application started successfully
+```
 
 **Checking Installation Location**
 
+```bash
+# Check where app was installed
+$ ls -la /var/config/app/ | grep MyApplication
+$ ls -la /var/persistent/ | grep MyApplication
+```
+
 **Viewing Logs**
+
+```bash
+# View system logs for your application
+$ grep "MyApplication" /var/log/messages | tail -20
+# Follow logs in real-time
+$ tail -f /var/log/messages | grep "MyApplication"
+```
 
 **Uninstalling Manually Installed Apps**
 
@@ -116,9 +229,31 @@ Before deploying via MultiTech Device Manager, you must uninstall manually insta
 
 **Via Command Line**
 
+```bash
+$ app-manager --command remove --appid 9dad30bf-8917-4fde-8f86-6b7d2216b130
+```
+
 **Development Workflow**
 
 For iterative development, use this workflow:
+
+```bash
+# 1. Make changes to your application
+# 2. Rebuild package
+$ ./package.sh
+# 3. Switch to root account
+sudo -s
+# 4. Copy to device
+$ scp dist/MyApplication_1_0_1.tgz admin@192.168.1.100:/tmp
+# 5. SSH to device
+$ ssh admin@192.168.1.100
+# 6. Stop and remove old version
+$ app-manager --command remove --appid 9dad30bf-8917-4fde-8f86-6b7d2216b130
+# 7. Install new version
+$ app-manager --command install --appid 9dad30bf-8917-4fde-8f86-6b7d2216b130 --appfile /tmp/MyApplication_1_0_1.tgz
+# 8. Check status
+$ app-manager --command status
+```
 
 **Utility Scripts**
 
@@ -159,6 +294,14 @@ Cloud-first deployment offers significant advantages:
 -   Understanding of your deployment strategy (staged rollout vs. fleet-wide)
 
 **Deployment Workflow in MultiTech Device Manager**
+
+> **Note:** Device Manager triggers installation automatically. The command below is for reference only — you do not run it manually.
+
+```bash
+app-manager --command install \
+  --appid 12345678-90ab-cdef-1234-567890abcdef \
+  --appversion 1.2.3
+```
 
 **Step 1: Upload Application to Device Manager**
 
@@ -456,7 +599,7 @@ For production deployments, use a staged approach:
 
 bash
 
-grep \"app-manager\" /var/log/messages \| tail -50
+grep "app-manager" /var/log/messages \| tail -50
 
 4.  Verify device has sufficient storage
 
@@ -638,7 +781,7 @@ Use Device Manager for:
 
 -   Remove old application versions
 
--   Use SD card for installation: \"SDCard\": true in manifest.json
+-   Use SD card for installation: "SDCard": true in manifest.json
 
 **Configuration Update Doesn't Apply:**
 

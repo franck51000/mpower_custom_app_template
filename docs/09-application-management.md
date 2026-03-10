@@ -10,23 +10,59 @@ The app-manager command-line utility is the primary interface for managing custo
 
 **Basic Command Structure**
 
+```bash
+app-manager --command <command> [options]
+```
+
 **Common Commands**
 
 **Install Application**
 
+```bash
+app-manager --command install --appid <app_id> --appfile <path_to_app_tarball>
+```
+
 Example:
+
+```bash
+app-manager --command install --appid 12345678-90ab-cdef-1234-567890abcdef --appfile /tmp/MyApp_1_0_0.tgz
+```
 
 **Uninstall Application**
 
+```bash
+app-manager --command remove --appid <app_id>
+```
+
 Example:
+
+```bash
+app-manager --command remove --appid 12345678-90ab-cdef-1234-567890abcdef
+```
 
 **Start Application**
 
+```bash
+app-manager --command start --appid <app_id>
+```
+
 **Stop Application**
+
+```bash
+app-manager --command stop --appid <app_id>
+```
 
 **Restart Application**
 
+```bash
+app-manager --command restart --appid <app_id>
+```
+
 **Check Application Status**
+
+```bash
+app-manager --command status
+```
 
 This displays all installed applications with their current status.
 
@@ -34,7 +70,15 @@ This displays all installed applications with their current status.
 
 **List Installed Applications**
 
+```bash
+app-manager --command list-installed
+```
+
 **Install Dependencies Only**
+
+```bash
+app-manager --command installdeps --appid <app_id>
+```
 
 This runs the Install script without reinstalling the application, which is useful after firmware upgrades or for troubleshooting.
 
@@ -42,9 +86,31 @@ This runs the Install script without reinstalling the application, which is usef
 
 Installing configurations is supported in MultiTech Device Manager, which is more efficient when you have multiple files versus installing configurations manually at the command line.
 
+```bash
+app-manager --command config --appid <app_id> --configids '<json>'
+```
+
 Example:
 
+```bash
+app-manager --command config --appid 12345678-90ab-cdef-1234-567890abcdef --configids '[ {"id":"file:///tmp/main.cfg"}, {"id":"file:///tmp/secondary.cfg"} ]'
+```
+
 **Complete Options Reference (R.7.1.0+)**
+
+```
+app-manager --command <command> [options...]
+-c, --command <command>   One of install, config, remove, start, stop, restart, status, init, installdeps, list-installed
+-i, --appid <id>          Unique application ID
+-v, --appversion <version> Version of the application to install
+-t, --apptype <type>      Type of application (currently only CUSTOM)
+-f, --appfile <path>      Path to the app tarball when installing from a local file
+-m, --appmd5 <checksum>   MD5 checksum for the --appfile
+-I, --appstoreip <url>    URL of the app store (MultiTech Device Manager)
+    --notify              Send notification on completion
+    --activate            Activate the application after installation
+    --noAppBackup         Skip backing up existing app before install
+```
 
 **Command Examples**
 
@@ -52,9 +118,21 @@ Useful command examples:
 
 **Install and Auto-Start**
 
+```bash
+app-manager --command install --appid 666d78aa-8270-446f-88cb-04c799558476 --appfile /tmp/MyApp.tgz --activate
+```
+
 **Install with MD5 Verification**
 
+```bash
+app-manager --command install --appid 666d78aa-8270-446f-88cb-04c799558476 --appfile /tmp/MyApp.tgz --appmd5 "abc123def456..."
+```
+
 **Install Without Backup**
+
+```bash
+app-manager --command install --appid 666d78aa-8270-446f-88cb-04c799558476 --appfile /tmp/MyApp.tgz --noAppBackup
+```
 
 The install backs up existing app versions unless --noAppBackup. mPower devices have configuration options to enable/disable backups in the UI, so you can create backups through the device API, etc.
 
@@ -62,9 +140,15 @@ The install backs up existing app versions unless --noAppBackup. mPower devices 
 
 **Install from MultiTech Device Manager**
 
-If \--appfile option is not provided, the app manager will treat the command as installation from MultiTech Device Manager.
+If `--appfile` option is not provided, the app manager will treat the command as installation from MultiTech Device Manager.
 
 In this case, the example would be the following:
+
+```bash
+app-manager --command install \
+    --appid 12345678-90ab-cdef-1234-567890abcdef \
+    --appversion 1.2.3
+```
 
 App manager will try to download and validate the app, the id 12345678-90ab-cdef-1234-567890abcdef, and the version 1.2.3. It will check the md5 summ of the downloaded app and then install it.
 
@@ -102,11 +186,32 @@ App-manager returns standard exit codes:
 
 Check exit codes in scripts:
 
+```bash
+if app-manager --command start --appid 12345678-90ab-cdef-1234-567890abcdef; then
+    echo "Started successfully"
+else
+    echo "Start failed"
+fi
+```
+
 **Common Usage Patterns**
 
 **Check if Application is Running**
 
+```bash
+app-manager --command status | grep MyApp | grep RUNNING
+if [ $? -eq 0 ]; then
+    echo "MyApp is running"
+fi
+```
+
 **Restart All Applications**
+
+```bash
+for app in $(app-manager --command list-installed); do
+    app-manager --command restart --appid "$app"
+done
+```
 
 ## Web UI Management
 
@@ -200,7 +305,7 @@ The AppInfo field supports line breaks (\\n), allowing multi-line status message
 
 -   **Hover for Details**: Remember to hover over application name and version for additional information
 
--   **Check Details**: Use \"View Application Details\" for troubleshooting
+-   **Check Details**: Use "View Application Details" for troubleshooting
 
 -   **Verify After Actions**: Always check status after start/stop/restart operations
 
@@ -218,6 +323,10 @@ mPower R.7.2.0 introduces SMS-based application management, enabling remote cont
 -   Automated monitoring systems
 
 **SMS Command Format**
+
+```
+#app <action> <app_identifier>
+```
 
 **Parameters**
 
@@ -270,6 +379,10 @@ All error responses are prefixed with `ERROR:`:
 -   **Enable Selectively**: Only enable #app command when needed
 
 **Monitoring SMS Commands**
+
+```bash
+grep "sms" /var/log/messages | grep "#app"
+```
 
 Check system logs for SMS command activity:
 
