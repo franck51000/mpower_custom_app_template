@@ -235,23 +235,16 @@ The template uses `start-stop-daemon`, a utility designed for managing daemon pr
 
 This is an example of commands to use with the start-stop-daemon utility. Refer to [Linux documentation online](https://man7.org/linux/man-pages/man8/start-stop-daemon.8.html) for more options you can use with these commands.
 
-  -----------------------------------------------------------------------
-  **Option**              **Description**
-  ----------------------- -----------------------------------------------
-  \--start                Start a process
+| **Option** | **Description** |
+| --- | --- |
+| \--start | Start a process |
+| \--stop | Stop a process |
+| \--background | Run the process in the background |
+| \--make-pidfile | Create PID file |
+| \--pidfile FILE | Specify PID file location |
+| \--exec PROGRAM | Program to execute |
+| \--retry TIMEOUT | How long to wait for the process to stop |
 
-  \--stop                 Stop a process
-
-  \--background           Run the process in the background
-
-  \--make-pidfile         Create PID file
-
-  \--pidfile FILE         Specify PID file location
-
-  \--exec PROGRAM         Program to execute
-
-  \--retry TIMEOUT        How long to wait for the process to stop
-  -----------------------------------------------------------------------
 
 **start-stop-daemon --help output**
 
@@ -343,21 +336,15 @@ For an example of managing processes directly, see [Appendix C](#appendix-c-dire
 
 **When to Use Each Approach**
 
-  --------------------------------------------------------------------------------------
-  **Scenario**                            **Recommended Approach**
-  --------------------------------------- ----------------------------------------------
-  Single compiled binary daemon           start-stop-daemon
+| **Scenario** | **Recommended Approach** |
+| --- | --- |
+| Single compiled binary daemon | start-stop-daemon |
+| Python/Bash script applications | Direct process management |
+| Multiple processes | Direct process management |
+| Need automatic restart on failure | External process supervisor (monit, systemd) |
+| Complex process dependencies | Direct process management with health checks |
+| Simple daemon that backgrounds itself | start-stop-daemon |
 
-  Python/Bash script applications         Direct process management
-
-  Multiple processes                      Direct process management
-
-  Need automatic restart on failure       External process supervisor (monit, systemd)
-
-  Complex process dependencies            Direct process management with health checks
-
-  Simple daemon that backgrounds itself   start-stop-daemon
-  --------------------------------------------------------------------------------------
 
 **Using start-stop-daemon**
 
@@ -407,15 +394,12 @@ When app-manager executes the Install and Start scripts, it sets several environ
 
 **Available Environment Variables (R.7.1.0+)**
 
-  -------------------------------------------------------------------------------------------
-  **Variable**   **Description**                                   **Example Value**
-  -------------- ------------------------------------------------- --------------------------
-  APP_DIR        Full path to application installation directory   /var/config/MyApp
+| **Variable** | **Description** | **Example Value** |
+| --- | --- | --- |
+| APP_DIR | Full path to application installation directory | /var/config/MyApp |
+| CONFIG_DIR | Full path to application config directory | /var/config/MyApp/config |
+| APP_ID | Application ID from MultiTech Device Manager | 611d1dde31eddd056018b8bf |
 
-  CONFIG_DIR     Full path to application config directory         /var/config/MyApp/config
-
-  APP_ID         Application ID from MultiTech Device Manager      611d1dde31eddd056018b8bf
-  -------------------------------------------------------------------------------------------
 
 **Using Environment Variables**
 

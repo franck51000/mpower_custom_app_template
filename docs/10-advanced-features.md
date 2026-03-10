@@ -77,15 +77,12 @@ logger -t "MyApp" -p user.warning "Retrying connection"
 
 **Logger Options**
 
-  -----------------------------------------------------------------------
-  **Option**              **Description**
-  ----------------------- -----------------------------------------------
-  -t TAG                  Set log tag (application name)
+| **Option** | **Description** |
+| --- | --- |
+| -t TAG | Set log tag (application name) |
+| -p PRIORITY | Set priority (facility.level) |
+| -s | See logger man page |
 
-  -p PRIORITY             Set priority (facility.level)
-
-  -s                      See logger man page
-  -----------------------------------------------------------------------
 
 **Priority Levels**
 
