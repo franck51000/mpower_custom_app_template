@@ -26,6 +26,25 @@ These files enhance functionality but are not required:
 
 ## Directory Layout
 
+```
+MyApplication/
+├── manifest.json           (required)
+├── Install                 (required)
+├── Start                   (required)
+├── status.json            (optional)
+├── version_extra          (optional)
+├── config/                (optional)
+│   └── app.conf
+├── provisioning/          (optional)
+│   ├── p_manifest.json
+│   ├── dependency1.ipk
+│   └── dependency2.ipk
+└── <application files>
+    ├── myapp.py
+    └── lib/
+        └── helper.py
+```
+
 A complete application package has this structure:
 
 **Important Notes**
@@ -36,5 +55,21 @@ A complete application package has this structure:
 -   The tarball name does not need to match the application name
 
 ## After Installation
+
+```
+/var/config/app/MyApplication/   (or /var/persistent/)
+├── manifest.json
+├── Install
+├── Start
+├── status.json
+├── version_extra
+├── config/
+│   └── app.conf
+├── provisioning/
+│   ├── p_manifest.json
+│   ├── dependency1.ipk
+│   └── dependency2.ipk
+└── <application files>
+```
 
 Once installed, your application structure appears in the installation directory:

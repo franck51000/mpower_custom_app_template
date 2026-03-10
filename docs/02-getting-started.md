@@ -32,6 +32,8 @@ To set up your development environment:
 
 2.  **Verify device access:** Ensure you can SSH into your mPower device:
 
-> ` `
+```bash
+$ ssh admin@<your_device_ip>
+```
 
 3.  **Install Development Tools:** For C/C++ development, set up the appropriate cross-compilation toolchain for your target mPower device architecture. mPower and mLinux SDKs are available [to download](https://www.multitech.net/developer/downloads/).

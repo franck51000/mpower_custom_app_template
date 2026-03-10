@@ -10,6 +10,17 @@ Many applications require multiple processes working together. mPower R.7.1.0+ p
 
 Update status.json to use the array format:
 
+```json
+{
+  "pid": [
+    {"name": "main_process", "pid": 1234},
+    {"name": "worker_1", "pid": 5678},
+    {"name": "worker_2", "pid": 9012}
+  ],
+  "AppInfo": "All processes running\nQueue: 0 items\nLast update: 2025-01-15 10:30:00"
+}
+```
+
 **Status Logic**
 
 For multi-process applications:
@@ -26,7 +37,7 @@ This strict checking ensures you're alerted when any component fails.
 
 **Viewing Process Details**
 
-The web UI \"View Application Details\" shows comprehensive process information:
+The web UI "View Application Details" shows comprehensive process information:
 
 -   Process name
 
@@ -38,7 +49,7 @@ The web UI \"View Application Details\" shows comprehensive process information:
 
 **Best Practices**
 
--   **Descriptive Names**: Use clear process names (not just \"worker1\")
+-   **Descriptive Names**: Use clear process names (not just "worker1")
 
 -   **Ordered Shutdown**: Stop dependent processes first (workers before main)
 
@@ -57,6 +68,12 @@ Integrating with the system logging facility allows your application to particip
 **Using logger Command**
 
 The `logger` command writes messages to syslog:
+
+```bash
+logger -t "MyApp" "Application started successfully"
+logger -t "MyApp" -p user.error "Configuration file not found"
+logger -t "MyApp" -p user.warning "Retrying connection"
+```
 
 **Logger Options**
 
@@ -81,11 +98,65 @@ Common combinations:
 
 **In Bash Scripts**
 
+```bash
+#!/bin/bash
+APP_ID="666d78aa-8270-446f-88cb-04c799558476"
+
+log_info()    { logger -t "$APP_ID" -p user.info "$@"; }
+log_error()   { logger -t "$APP_ID" -p user.error "$@"; }
+log_warning() { logger -t "$APP_ID" -p user.warning "$@"; }
+
+log_info "Starting data processing"
+log_warning "Queue is 90% full"
+log_error "Failed to connect to database"
+```
+
 **In Python:**
 
-**In C**
+```python
+import logging
+import logging.handlers
+
+logger = logging.getLogger('MyApp')
+logger.setLevel(logging.INFO)
+handler = logging.handlers.SysLogHandler(address='/dev/log')
+formatter = logging.Formatter('%(name)s: %(levelname)s: %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+logger.info("Application started")
+logger.warning("Queue is 90% full")
+logger.error("Failed to connect to database")
+```
+
+**In C:**
+
+```c
+#include <syslog.h>
+#include <stdio.h>
+
+int main() {
+    openlog("my_program", LOG_PID | LOG_CONS, LOG_USER);
+    syslog(LOG_INFO, "Informational message.");
+    syslog(LOG_WARNING, "Warning message.");
+    syslog(LOG_ERR, "Error message.");
+    closelog();
+    return 0;
+}
+```
 
 **Viewing Logs**
+
+```bash
+# View all logs
+tail -f /var/log/messages
+# Filter for your application
+grep "MyApp" /var/log/messages
+# View last 50 lines
+grep "MyApp" /var/log/messages | tail -50
+# Follow in real-time
+tail -f /var/log/messages | grep "MyApp"
+```
 
 **Best Practices**
 
@@ -100,6 +171,15 @@ Common combinations:
 Custom applications can display notifications in the mPower web UI, providing immediate feedback to administrators about important events.
 
 **Using notify_system**
+
+```bash
+root@mtr3-P001010:/etc/init.d# notify_system
+Usage: /sbin/notify_system <SOURCE> <TYPE> <MESSAGE> [ clean ]
+  SOURCES: INIT, FIREWALL, GRE, IPSEC, CELL, WIFI, BT, SERIAL, MDM
+  TYPES: INFO, WARNING, ERROR
+  clean: optional argument - overwrite message with existing source
+root@mtr3-P001010:/etc/init.d# notify_system MDM INFO "Application update complete"
+```
 
 The `notify_system` command displays notifications in the web UI:
 
@@ -160,11 +240,41 @@ Extra versions appear in the web UI alongside the main version:
 
 **Build Tracking**
 
+```
+manifest.json: "AppVersion": "2.1.0"
+version_extra: "build-12345"
+Display: 2.1.0 (build-12345)
+```
+
 **Branch Identification**
+
+```
+manifest.json: "AppVersion": "1.5.0"
+version_extra: "feature-new-api"
+Display: 1.5.0 (feature-new-api)
+```
 
 **Release Candidates**
 
+```
+manifest.json: "AppVersion": "3.0.0"
+version_extra: "rc2"
+Display: 3.0.0 (rc2)
+```
+
 **Automated Build Systems**
+
+```bash
+#!/bin/bash
+# build.sh - Automated build script
+VERSION="1.0.0"
+BUILD_NUMBER="${CI_BUILD_NUMBER:-local}"
+GIT_HASH=$(git rev-parse --short HEAD)
+
+echo "build-${BUILD_NUMBER}-${GIT_HASH}" > src/version_extra
+tar -czf MyApp_${VERSION}.tgz -C src .
+# Result: 1.0.0 (build-456-abc123f)
+```
 
 Integrate with CI/CD:
 

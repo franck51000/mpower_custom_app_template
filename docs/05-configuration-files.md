@@ -45,7 +45,26 @@ The manifest.json file is the primary configuration file for your custom applica
 
 **Basic Example**
 
+```json
+{
+  "AppName": "LoraSensor",
+  "AppVersion": "1.0.0",
+  "AppDescription": "Processes LoRa sensor data and forwards to cloud",
+  "AppVersionNotes": "Initial release with basic functionality"
+}
+```
+
 **Example with Installation Control**
+
+```json
+{
+  "AppName": "CriticalApp",
+  "AppVersion": "2.1.0",
+  "AppDescription": "Critical system monitor",
+  "AppVersionNotes": "Added email alerts",
+  "PersistentStorage": true
+}
+```
 
 **Best Practices**
 
@@ -69,7 +88,7 @@ The status.json file enables app-manager to monitor your application's processes
 
 -   Track one or more process IDs (PIDs)
 -   Provide custom status messages to users
--   Enable accurate \"RUNNING\" vs \"FAILED\" status determination
+-   Enable accurate "RUNNING" vs "FAILED" status determination
 -   Manage multi-process applications and report status of all apps (mPower R.7.1.0+)
 
 **File Format**
@@ -80,6 +99,13 @@ The status.json file enables app-manager to monitor your application's processes
 
 **Basic Structure (Single Process)**
 
+```json
+{
+  "pid": 2374,
+  "AppInfo": "Processing sensor data"
+}
+```
+
 ### Advanced Structure (Multiple Processes Tracking, R.7.1.0+)
 
 When your application architecture uses multiple processes, tracking all PIDs in status.json is a way to tell app-manager about all the processes your application uses (for example, a main coordinator process and separate worker processes).
@@ -88,7 +114,7 @@ Only tracking one PID for the main coordinator process in status.json prevents a
 
 -   Your application (or Start script) must write the PID values to status.json. When you start each process, you capture its Process ID and write it to this file. The operating system (OS) assigns PID values when processes start, so you only need to record them.
 
--   If any process stops, the status immediately changes to \"FAILED\" and alerts you through the web UI and MultiTech Device Manager so you can take corrective action.
+-   If any process stops, the status immediately changes to "FAILED" and alerts you through the web UI and MultiTech Device Manager so you can take corrective action.
 
 You should avoid using this feature when your application is a single process, when multiple processes are optional/non-critical, or when you have processes that intentionally start and stop. Use this feature when:
 
@@ -120,28 +146,46 @@ You should avoid using this feature when your application is a single process, w
   pid         Integer    Process ID to monitor
   -------------------------------------------------------------------------------
 
+**Advanced Structure Example**
+
+```json
+{
+  "pid": [
+    {
+      "name": "main_process",
+      "pid": 1234
+    },
+    {
+      "name": "worker_process",
+      "pid": 5678
+    }
+  ],
+  "AppInfo": "Main process connected\nWorker processing queue\n5 items pending"
+}
+```
+
 **Status Determination Logic**
 
 **Single PID**
 
--   If process is running: Status shows \"RUNNING\"
--   If the process is not running: Status shows \"FAILED\"
--   If no status.json exists, the system cannot determine if the process is still running or has crashed: Status shows only \"STARTED\"/\"STOPPED\" (basic monitoring only)
+-   If process is running: Status shows "RUNNING"
+-   If the process is not running: Status shows "FAILED"
+-   If no status.json exists, the system cannot determine if the process is still running or has crashed: Status shows only "STARTED"/"STOPPED" (basic monitoring only)
 
 **Multiple PIDs (R.7.1.0+)**
 
--   If ALL processes are running: Status shows \"RUNNING\"
--   If ANY process is not running: Status shows \"FAILED\"
+-   If ALL processes are running: Status shows "RUNNING"
+-   If ANY process is not running: Status shows "FAILED"
 
 ### Using AppInfo Effectively
 
 The AppInfo field allows your application to communicate its current state or errors to users. The status can contain any string up to 160 characters, but the system will truncate it to fit within this constraint if the string exceeds this limit. The AppInfo field also supports \\n for line breaks. The status appears in the web UI's for the mPower device and MultiTech Device Manager. Effective uses include:
 
--   Connection status: \"Connected to server\"
--   Processing statistics: \"Processed 150 messages\"
--   Error conditions: \"ERROR: Configuration file missing\"
--   Queue status: \"5 items in queue\"
--   Multi-line status (R.7.1.0+): \"Line 1\\nLine 2\\nLine 3\"
+-   Connection status: "Connected to server"
+-   Processing statistics: "Processed 150 messages"
+-   Error conditions: "ERROR: Configuration file missing"
+-   Queue status: "5 items in queue"
+-   Multi-line status (R.7.1.0+): "Line 1\\nLine 2\\nLine 3"
 
 **Updating status.json from Your Application**
 
@@ -153,9 +197,74 @@ Your application should update status.json whenever:
 
 **Python Example**
 
+```python
+import json
+import os
+
+def update_status(pid, message):
+    status = {
+        "pid": pid,
+        "AppInfo": message
+    }
+    with open('status.json', 'w') as f:
+        json.dump(status, f, indent=2)
+
+# At startup
+update_status(os.getpid(), "Application starting")
+# During operation
+update_status(os.getpid(), "Processing data")
+```
+
 **Bash Example**
 
+```bash
+#!/bin/bash
+APP_PID=$$
+STATUS_FILE="status.json"
+
+update_status() {
+    local message="$1"
+    cat > "$STATUS_FILE" << EOF
+{
+  "pid": $APP_PID,
+  "AppInfo": "$message"
+}
+EOF
+}
+
+# At startup
+update_status "Application starting"
+# During operation
+update_status "Processing complete"
+```
+
 **Multi-Process Example (R.7.1.0+)**
+
+```python
+import json
+
+def update_multi_status(processes, message):
+    """
+    processes: list of (name, pid) tuples
+    message: status message
+    """
+    status = {
+        "pid": [
+            {"name": name, "pid": pid}
+            for name, pid in processes
+        ],
+        "AppInfo": message
+    }
+    with open('status.json', 'w') as f:
+        json.dump(status, f, indent=2)
+
+# Track multiple processes
+processes = [
+    ("main", 1234),
+    ("worker", 5678)
+]
+update_multi_status(processes, "All processes running\nQueue: 0 items")
+```
 
 **Best Practices**
 
@@ -213,12 +322,29 @@ The core concept is that p_manifest.json serves as a structured inventory of req
 
   FileName    String     Name of the file (IPK, etc.) in the provisioning directory
 
-  type        String     Package type. Currently, only \"ipk\" is supported, but you can modify the Install script to handle other package types
+  type        String     Package type. Currently, only "ipk" is supported, but you can modify the Install script to handle other package types
 
   PkgName     String     Actual package name (from the IPK control file, etc.) that is used to check if the package is already installed
   ------------------------------------------------------------------------------------------------------------------------------------------------
 
 **Complete Example**
+
+```json
+{
+  "pkgs": [
+    {
+      "FileName": "python3-requests_2.25.1.ipk",
+      "type": "ipk",
+      "PkgName": "python3-requests"
+    },
+    {
+      "FileName": "libmosquitto1_1.6.12.ipk",
+      "type": "ipk",
+      "PkgName": "libmosquitto1"
+    }
+  ]
+}
+```
 
 ### How Dependencies Are Installed via the Default Install Script Template
 
@@ -238,6 +364,18 @@ The default Install script template processes p_manifest.json as follows:
 
 **Directory Structure Example**
 
+```
+MyApplication/
+├── manifest.json
+├── Install
+├── Start
+├── provisioning/
+│   ├── p_manifest.json
+│   ├── python3-requests_2.25.1.ipk
+│   └── libmosquitto1_1.6.12.ipk
+└── myapp.py
+```
+
 **Important: \--force-depends Behavior**
 
 The default Install script uses `--force-``depends` when installing and removing packages. This flag tells opkg to:
@@ -256,6 +394,15 @@ If your p_manifest.json includes:
 -   Packages that other applications depend on
 
 Then modify the Install script variables:
+
+```bash
+# Change from:
+OPKG_CMD_PREFIX="opkg install --force-depends"
+OPKG_CMD_PREFIX_R="opkg remove --force-depends"
+# To:
+OPKG_CMD_PREFIX="opkg install"
+OPKG_CMD_PREFIX_R="opkg remove"
+```
 
 ### Creating IPK Packages
 

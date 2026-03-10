@@ -62,6 +62,13 @@ When you upgrade the firmware on mPower devices, this preserves custom applicati
 
 ## Installation Locations
 
+```
+if PersistentStorage is true in manifest.json:
+    Install to /var/persistent/<app_name>
+else
+    Install to /var/config/app/<app_name>
+```
+
 You can install custom applications in one of two locations, determined automatically or by configuration, with the main difference being that /var/persistent is significantly larger than /var/config/app:
 
 **1. Flash Memory (/var/config/app/\<app_name\>)**

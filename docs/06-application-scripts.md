@@ -29,21 +29,101 @@ The Install script is responsible for setting up and tearing down your applicati
 
 The custom app template provides a complete Install script. Key sections include:
 
+```bash
+#!/bin/bash
+# Environment setup
+APP_DIR=${APP_DIR:-.}
+APP_ID=${APP_ID:-666d78aa-8270-446f-88cb-04c799558476}
+
+log() { logger -t "$APP_ID" -p user.notice "$@"; }
+
+PROVISIONING_DIR="${APP_DIR}/provisioning"
+P_MANIFEST="${PROVISIONING_DIR}/p_manifest.json"
+
+do_install() {
+    # Parse p_manifest.json and install IPK packages
+}
+
+do_postinstall() {
+    # Additional post-install steps
+}
+
+do_remove() {
+    # Cleanup on uninstall
+}
+```
+
 **When the Install is Called**
 
 **During Application Installation**
 
+```
+1. app-manager extracts the application package
+2. app-manager executes: Install install
+3. app-manager saves application metadata
+4. app-manager executes: Install postinstall
+5. app-manager starts application
+```
+
 **During Application Uninstallation**
 
+```
+1. app-manager stops application
+2. app-manager executes: Install remove
+3. app-manager deletes application directory
+4. Deletes the application metadata from app-manager.json
+```
+
 **After Firmware Upgrade**
+
+```
+For each installed application:
+1. app-manager executes: Install install
+2. app-manager executes: Install postinstall
+3. app-manager starts application
+```
 
 **Customizing the Install Script**
 
 **Example: Installing Python Packages**
 
+```bash
+do_install() {
+    log "Installing Python dependencies"
+    pip3 install -r "${APP_DIR}/requirements.txt" || {
+        log "ERROR: Failed to install Python packages"
+        return 1
+    }
+    install_ipks
+    return 0
+}
+```
+
 **Example: Creating Directories**
 
+```bash
+do_postinstall() {
+    log "Creating data directories"
+    mkdir -p /var/persistent/${APP_NAME}/data || {
+        log "ERROR: Failed to create data directory"
+        return 1
+    }
+    chmod 755 /var/persistent/${APP_NAME}/data
+    return 0
+}
+```
+
 **Example: Custom Cleanup**
+
+```bash
+do_remove() {
+    log "Removing application"
+    remove_ipks
+    rm -rf /var/persistent/${APP_NAME}/data
+    rm -f /etc/${APP_NAME}.conf
+    return 0
+}
+```
 
 **Important Considerations**
 
@@ -52,15 +132,10 @@ The custom app template provides a complete Install script. Key sections include
 -   **Error Handling:** Always check return codes and log errors clearly. Return non-zero on failure.
 
 -   **Logging:** Use the `logger` command to write to system logs for debugging:
+    ```bash
+    logger -t "$APP_NAME" "Installation completed successfully"
+    ```
 
-```{=html}
-<!-- -->
-```
--
-
-```{=html}
-<!-- -->
-```
 -   **Dependency Management:** If using p_manifest.json, the default script handles IPK installation. You can extend this with additional dependencies.
 
 -   **File Permissions:** Ensure created files and directories have appropriate permissions.
@@ -91,21 +166,66 @@ The Start script manages the lifecycle of your application processes. It starts,
 
 **Template Structure**
 
+```bash
+#!/bin/bash
+APP_ID="666d78aa-8270-446f-88cb-04c799558476"
+DAEMON="${APP_DIR}/myapp.py"
+DAEMON_ARGS=""
+PIDFILE="${APP_DIR}/myapp.pid"
+
+do_start() { ... }
+do_stop()  { ... }
+do_reload(){ ... }
+
+case "$1" in
+    start)   do_start ;;
+    stop)    do_stop ;;
+    restart) do_stop; sleep 2; do_start ;;
+    reload)  do_reload ;;
+esac
+```
+
 **When Start is Called**
 
 **During Custom Application Startup**
+
+```bash
+app-manager --command start
+```
 
 This command is the same whether it is done manually or automatically during initialization of the mPower device or through the Web UI.
 
 **When Stopping a Custom Application**
 
+```bash
+app-manager --command stop
+```
+
 **During Boot**
+
+```
+For each installed application:
+app-manager executes: Start start --initd
+```
 
 **During Shutdown**
 
+```
+For each installed application:
+app-manager executes: Start stop --initd
+```
+
 **Configuration Update**
 
+```
+app-manager executes: Start reload
+```
+
 **Restarting a Custom Application**
+
+```bash
+app-manager --command restart
+```
 
 ## start-stop-daemon Utility
 
@@ -133,16 +253,45 @@ This is an example of commands to use with the start-stop-daemon utility. Refer 
   \--retry TIMEOUT        How long to wait for the process to stop
   -----------------------------------------------------------------------
 
-**\
-start-stop-daemon \--help**
+**start-stop-daemon --help output**
+
+```
+Usage: start-stop-daemon [...]
+  -S, --start        Start a program
+  -K, --stop         Stop a program
+  -T, --status       Get the program status
+  -H, --help         Print help information
+  -V, --version      Print version
+```
 
 **Customizing for Different Languages**
 
 **Python Application**
 
+```bash
+NAME="MyPythonApp"
+DAEMON="/usr/bin/python3"
+DAEMON_ARGS="${APP_DIR}/myapp.py --config ${CONFIG_DIR}/app.conf"
+PIDFILE="${APP_DIR}/myapp.pid"
+```
+
 **Bash Script**
 
+```bash
+NAME="MyBashApp"
+DAEMON="/bin/bash"
+DAEMON_ARGS="${APP_DIR}/myapp.sh"
+PIDFILE="${APP_DIR}/myapp.pid"
+```
+
 **Compiled Binary**
+
+```bash
+NAME="MyCompiledApp"
+DAEMON="${APP_DIR}/myapp"
+DAEMON_ARGS="--port 8080 --log-level debug"
+PIDFILE="${APP_DIR}/myapp.pid"
+```
 
 ## Multiple Processes
 
@@ -275,6 +424,20 @@ View [Appendix D](#appendix-d-environment-variables-reference) for an environmen
 **In Start Script**
 
 **Passing Variables to Your Application**
+
+```bash
+# In Start script
+do_start() {
+    # Export variables for the application
+    export MY_APP_DIR="$APP_DIR"
+    export MY_CONFIG="$CONFIG_DIR/app.conf"
+    export MY_APP_ID="$APP_ID"
+
+    start-stop-daemon --start \
+        --exec "$DAEMON" \
+        -- $DAEMON_ARGS
+}
+```
 
 You can pass environment variables to your application:
 
