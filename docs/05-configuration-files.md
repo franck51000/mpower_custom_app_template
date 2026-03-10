@@ -22,26 +22,20 @@ The manifest.json file is the primary configuration file for your custom applica
 
 **Required Fields**
 
-  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  **Field**         **Type**   **Description**
-  ----------------- ---------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-  AppName           String     Name of the application. Used for the installation directory name and display in UI and MultiTech Device Manager. Must be unique across installed applications.
+| **Field** | **Type** | **Description** |
+| --- | --- | --- |
+| AppName | String | Name of the application. Used for the installation directory name and display in UI and MultiTech Device Manager. Must be unique across installed applications. |
+| AppVersion | String | Version identifier for the application. MultiTech Device Manager uses this to distinguish between versions. Follow semantic versioning practices. |
+| AppDescription | String | Human-readable description of what the application does. Displayed in UI and MultiTech Device Manager. |
+| AppVersionNotes | String | Release notes or changes for this specific version. Helps track what changed between versions. |
 
-  AppVersion        String     Version identifier for the application. MultiTech Device Manager uses this to distinguish between versions. Follow semantic versioning practices.
-
-  AppDescription    String     Human-readable description of what the application does. Displayed in UI and MultiTech Device Manager.
-
-  AppVersionNotes   String     Release notes or changes for this specific version. Helps track what changed between versions.
-  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 **Optional Fields**
 
-  -------------------------------------------------------------------------
-  **Field**            **Type**   **Description**
-  -------------------- ---------- -----------------------------------------
-  PersistentStorage    Boolean    When true, installs to /var/persistent.
+| **Field** | **Type** | **Description** |
+| --- | --- | --- |
+| PersistentStorage | Boolean | When true, installs to /var/persistent. |
 
-  -------------------------------------------------------------------------
 
 **Basic Example**
 
@@ -128,23 +122,19 @@ You should avoid using this feature when your application is a single process, w
 
 **Field Descriptions**
 
-  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  **Field**   **Type**           **Description**
-  ----------- ------------------ ----------------------------------------------------------------------------------------------------------------------------------------------
-  pid         Integer or Array   Single PID for simple apps, or an array of process objects for multi-process apps. App-manager checks if these processes are running.
+| **Field** | **Type** | **Description** |
+| --- | --- | --- |
+| pid | Integer or Array | Single PID for simple apps, or an array of process objects for multi-process apps. App-manager checks if these processes are running. |
+| AppInfo | String | Custom status message (up to 160 characters). Displayed in the web UI and MultiTech Device Manager. Supports \\n for line breaks (R.7.1.0+). |
 
-  AppInfo     String             Custom status message (up to 160 characters). Displayed in the web UI and MultiTech Device Manager. Supports \\n for line breaks (R.7.1.0+).
-  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 **For Multiple Process Objects**
 
-  -------------------------------------------------------------------------------
-  **Field**   **Type**   **Description**
-  ----------- ---------- --------------------------------------------------------
-  name        String     Human-readable process name (optional but recommended)
+| **Field** | **Type** | **Description** |
+| --- | --- | --- |
+| name | String | Human-readable process name (optional but recommended) |
+| pid | Integer | Process ID to monitor |
 
-  pid         Integer    Process ID to monitor
-  -------------------------------------------------------------------------------
 
 **Advanced Structure Example**
 
@@ -315,17 +305,13 @@ The core concept is that p_manifest.json serves as a structured inventory of req
 
 **Field Descriptions**
 
-  ------------------------------------------------------------------------------------------------------------------------------------------------
-  **Field**   **Type**   **Description**
-  ----------- ---------- -------------------------------------------------------------------------------------------------------------------------
-  pkgs        Array      An array of package objects to install
+| **Field** | **Type** | **Description** |
+| --- | --- | --- |
+| pkgs | Array | An array of package objects to install |
+| FileName | String | Name of the file (IPK, etc.) in the provisioning directory |
+| type | String | Package type. Currently, only "ipk" is supported, but you can modify the Install script to handle other package types |
+| PkgName | String | Actual package name (from the IPK control file, etc.) that is used to check if the package is already installed |
 
-  FileName    String     Name of the file (IPK, etc.) in the provisioning directory
-
-  type        String     Package type. Currently, only "ipk" is supported, but you can modify the Install script to handle other package types
-
-  PkgName     String     Actual package name (from the IPK control file, etc.) that is used to check if the package is already installed
-  ------------------------------------------------------------------------------------------------------------------------------------------------
 
 **Complete Example**
 

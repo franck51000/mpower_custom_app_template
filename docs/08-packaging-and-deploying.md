@@ -35,21 +35,15 @@ $ tar --hard-dereference -hczf MyApplication_1_0_0.tgz *
 
 **Important tar Options**
 
-  -----------------------------------------------------------------------
-  **Option**            **Purpose**
-  --------------------- -------------------------------------------------
-  \--hard-dereference   Follow symbolic links and include actual files
+| **Option** | **Purpose** |
+| --- | --- |
+| \--hard-dereference | Follow symbolic links and include actual files |
+| -h | Follow symbolic links (short form) |
+| -c | Create a new archive |
+| -z | Compress with gzip |
+| -f | Specify filename |
+| \* | Include all files in the current directory |
 
-  -h                    Follow symbolic links (short form)
-
-  -c                    Create a new archive
-
-  -z                    Compress with gzip
-
-  -f                    Specify filename
-
-  \*                    Include all files in the current directory
-  -----------------------------------------------------------------------
 
 **Verifying Package Contents**
 
@@ -715,25 +709,17 @@ Device Manager integrates with MultiTech's broader cloud ecosystem:
 
 **Advantages Over Local Installation**
 
-  ------------------------------------------------------------------------------
-  **Aspect**      **Local Installation**         **Device Manager**
-  --------------- ------------------------------ -------------------------------
-  Scale           One device at a time           Entire fleet simultaneously
+| **Aspect** | **Local Installation** | **Device Manager** |
+| --- | --- | --- |
+| Scale | One device at a time | Entire fleet simultaneously |
+| Access | Requires SSH/physical access | Web interface from anywhere |
+| Tracking | Manual record keeping | Automatic deployment history |
+| Configuration | Edit files on each device | Push configs from cloud |
+| Monitoring | SSH to each device | Dashboard view of all devices |
+| Rollback | Manual on each device | Schedule rollback deployment |
+| Scheduling | Immediate only | Schedule future deployments |
+| Audit | Limited | Complete action history |
 
-  Access          Requires SSH/physical access   Web interface from anywhere
-
-  Tracking        Manual record keeping          Automatic deployment history
-
-  Configuration   Edit files on each device      Push configs from cloud
-
-  Monitoring      SSH to each device             Dashboard view of all devices
-
-  Rollback        Manual on each device          Schedule rollback deployment
-
-  Scheduling      Immediate only                 Schedule future deployments
-
-  Audit           Limited                        Complete action history
-  ------------------------------------------------------------------------------
 
 **When to Use Each Approach**
 

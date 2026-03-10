@@ -124,21 +124,15 @@ Visual reference for application status states and transitions. Status states ar
 
 **Status Display Rules**
 
-  ---------------------------------------------------------------------------
-  **Condition**                             **Status**            **Color**
-  ----------------------------------------- --------------------- -----------
-  No status.json present                    STARTED               Yellow
+| **Condition** | **Status** | **Color** |
+| --- | --- | --- |
+| No status.json present | STARTED | Yellow |
+| status.json exists, all PIDs running | RUNNING | Green |
+| status.json exists, any PID not running | FAILED | Red |
+| Application stopped via stop command | STOPPED | Red |
+| Installation failed | INSTALL FAILED | Red |
+| Start command failed | START FAILED | Red |
 
-  status.json exists, all PIDs running      RUNNING               Green
-
-  status.json exists, any PID not running   FAILED                Red
-
-  Application stopped via stop command      STOPPED               Red
-
-  Installation failed                       INSTALL FAILED        Red
-
-  Start command failed                      START FAILED          Red
-  ---------------------------------------------------------------------------
 
 **Multi-Process Status Logic**
 
@@ -278,15 +272,12 @@ Complete reference for environment variables available to Install and Start scri
 
 **Variables Set by App-Manager (R.7.1.0+)**
 
-  ------------------------------------------------------------------------------------------------------------------
-  **Variable**   **Description**                                   **Example Value**              **Available In**
-  -------------- ------------------------------------------------- ------------------------------ ------------------
-  APP_DIR        Full path to application installation directory   /var/config/MyApp              Start
+| **Variable** | **Description** | **Example Value** | **Available In** |
+| --- | --- | --- | --- |
+| APP_DIR | Full path to application installation directory | /var/config/MyApp | Start |
+| CONFIG_DIR | Full path to configuration directory | /var/config/app/MyApp/config | Start |
+| APP_ID | Application name from MT Device Manager | 611d1dde31eddd056018b8bf | Start |
 
-  CONFIG_DIR     Full path to configuration directory              /var/config/app/MyApp/config   Start
-
-  APP_ID         Application name from MT Device Manager           611d1dde31eddd056018b8bf       Start
-  ------------------------------------------------------------------------------------------------------------------
 
 **Usage Examples**
 
@@ -351,19 +342,14 @@ print(f"Running {app_id} from {app_dir}")
 
 These standard Linux variables are also available:
 
-  -----------------------------------------------------------------------
-  **Variable**       **Description**
-  ------------------ ----------------------------------------------------
-  PATH               System executable search path
+| **Variable** | **Description** |
+| --- | --- |
+| PATH | System executable search path |
+| HOME | User home directory |
+| USER | Current user (usually root) |
+| PWD | Current working directory |
+| SHELL | Current shell |
 
-  HOME               User home directory
-
-  USER               Current user (usually root)
-
-  PWD                Current working directory
-
-  SHELL              Current shell
-  -----------------------------------------------------------------------
 
 **Best Practices**
 
