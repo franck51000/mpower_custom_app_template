@@ -1,0 +1,73 @@
+#!/bin/bash
+NAME="lora-php-forwarder"
+DAEMON="python3 ${APP_DIR}/forwarder.py"
+DAEMON_ARGS="--cfgfile ${CONFIG_DIR}/forwarder.cfg.json"
+PID_FILE="/var/run/$NAME.pid"
+START_STOP_DAEMON="/usr/sbin/start-stop-daemon"
+RUN_DIR="${APP_DIR}"
+
+function SetEnv {
+    echo "SetEnv"
+}
+
+function CreateAccess {
+    chmod +x "${APP_DIR}/forwarder.py"
+}
+
+function ExecuteStart {
+    echo "ExecuteStart:"
+    $START_STOP_DAEMON --start \
+                       --background \
+                       --make-pidfile \
+                       --pidfile "${PID_FILE}" \
+                       --chdir "${RUN_DIR}" \
+                       --startas "/bin/bash" \
+                       -- -c "exec ${DAEMON} ${DAEMON_ARGS}"
+}
+
+function Start {
+    SetEnv
+    CreateAccess
+    ExecuteStart
+}
+
+function Stop {
+    echo "Stop:"
+    $START_STOP_DAEMON --stop -p "${PID_FILE}" --retry 60
+}
+
+function Restart {
+    echo "Restart:"
+    Stop
+    sleep 1
+    Start
+}
+
+function Reload {
+    echo "Reload:"
+    Restart
+}
+
+case "$1" in
+    start)
+        echo -n "Starting $NAME: "
+        Start
+        ;;
+    stop)
+        echo -n "Stopping $NAME: "
+        Stop
+        ;;
+    restart)
+        echo -n "Restarting $NAME: "
+        Restart
+        ;;
+    reload)
+        echo -n "Reloading $NAME: "
+        Reload
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|reload}" >&2
+        exit 1
+        ;;
+esac
+exit 0

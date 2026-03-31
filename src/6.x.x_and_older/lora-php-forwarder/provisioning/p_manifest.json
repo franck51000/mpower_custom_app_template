@@ -1,0 +1,9 @@
+{
+  "pkgs": [
+    {
+      "FileName": "python3-requests_2.27.1-1_arm926ejste.ipk",
+      "PkgName": "python3-requests",
+      "type": "ipk"
+    }
+  ]
+}
