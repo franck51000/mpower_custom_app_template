@@ -1,0 +1,6 @@
+{
+  "AppName": "lora-bash-tcp-forwarder",
+  "AppVersion": "1.0.0",
+  "AppDescription": "Forwards last received LoRaWAN frame to a PHP server via TCP port 3001 — bash/sh, mPower 6.x.x",
+  "AppVersionNotes": "Initial release — bash/sh implementation, TCP transport, firmware 6.x.x and older"
+}
