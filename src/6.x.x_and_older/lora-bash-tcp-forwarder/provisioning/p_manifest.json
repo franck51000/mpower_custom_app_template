@@ -1,0 +1,9 @@
+{
+  "pkgs": [
+    {
+      "FileName": "socat_1.7.3.2-3_arm926ejste.ipk",
+      "PkgName": "socat",
+      "type": "ipk"
+    }
+  ]
+}
