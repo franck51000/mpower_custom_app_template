@@ -23,8 +23,12 @@ function SetEnv {
 }
 
 function CreateAccess {
-    chmod +x "${APP_DIR}/forwarder.sh"
-    chmod +x "${APP_DIR}/handle_packet.sh"
+    # Ensure all app shell scripts are executable.
+    # Needed when files were uploaded to /home and copied without +x bit.
+    chmod +x "${APP_DIR}/Start" \
+             "${APP_DIR}/Install" \
+             "${APP_DIR}/forwarder.sh" \
+             "${APP_DIR}/handle_packet.sh"
 }
 
 function ExecuteStart {

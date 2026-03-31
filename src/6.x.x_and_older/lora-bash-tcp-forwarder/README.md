@@ -3,6 +3,7 @@
 ## ⚡ Démarrage rapide / Quick Start
 
 > **Créer le fichier `.tar.gz` prêt à installer sur la gateway mPower :**
+> **Create the `.tar.gz` file ready to install on the mPower gateway:**
 
 ### Étape 1 — Obtenir le fichier `.ipk` socat
 
@@ -18,6 +19,7 @@ mv socat_*.ipk provisioning/socat_1.7.3.2-3_arm926ejste.ipk
 
 ```bash
 # Dans le dossier lora-bash-tcp-forwarder/
+# Le script chmod +x automatiquement tous les scripts avant de packager
 ./build_package.sh
 ```
 
@@ -222,16 +224,24 @@ mv socat_*.ipk provisioning/socat_1.7.3.2-3_arm926ejste.ipk
 ```bash
 cd src/6.x.x_and_older/lora-bash-tcp-forwarder/
 
-# 1. Placer le fichier .ipk dans provisioning/ avant de packager
-cp /chemin/vers/socat_*.ipk provisioning/socat_1.7.3.2-3_arm926ejste.ipk
+# 1. Place the .ipk in provisioning/ before packaging
+#    Placer le fichier .ipk dans provisioning/ avant de packager
+cp /path/to/socat_*.ipk provisioning/socat_1.7.3.2-3_arm926ejste.ipk
 
-# 2. Lancer le script de packaging
+# 2. Rendre les scripts exécutables (chmod +x) — requis après upload depuis Windows
+#    ou transfert SFTP qui peut supprimer le bit +x
+chmod +x Start Install forwarder.sh handle_packet.sh
+
+# 3. Lancer le script de packaging (il fait aussi le chmod +x automatiquement)
 ./build_package.sh
 # → génère : lora-bash-tcp-forwarder_1.0.0.tar.gz
 ```
 
 **Ou manuellement :**
 ```bash
+# Assurez-vous d'abord que les scripts sont exécutables !
+chmod +x Start Install forwarder.sh handle_packet.sh
+
 tar -czf lora-bash-tcp-forwarder_1.0.0.tar.gz \
     manifest.json \
     Start \
@@ -282,6 +292,12 @@ echo '{"test":true}' | nc -w 3 <php-server-ip> 3001
 
 ## Notes importantes / Important Notes
 
+- **chmod +x obligatoire** : Après upload des fichiers sur la gateway (via SFTP
+  vers `/home` par exemple), les scripts peuvent perdre leurs droits d'exécution.
+  **Toujours faire `chmod +x Start Install forwarder.sh handle_packet.sh`** avant
+  d'installer l'app, ou utiliser `build_package.sh` qui le fait automatiquement.
+  Le script `Install postinstall` et la fonction `CreateAccess` du script `Start`
+  appliquent aussi ce `chmod +x` comme filet de sécurité.
 - Le fichier `.ipk` de `socat` **n'est pas inclus** dans ce dépôt et doit
   être ajouté manuellement dans `provisioning/` avant de packager.
 - Seuls les paquets **PUSH_DATA** (type `0x00`) sont transmis au serveur PHP.

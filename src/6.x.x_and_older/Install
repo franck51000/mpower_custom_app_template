@@ -51,6 +51,11 @@ function install_packages {
 # function would be to reboot the Conduit after the install if necessary.
 #
 function post_install {
+    # Ensure all app scripts are executable.
+    # This is required when files are uploaded directly to the device
+    # (e.g. via SFTP to /home) and may have lost their execute permission.
+    # Uncomment and adapt the line below to match your app's script names:
+    # chmod +x "${APP_DIR}/Start" "${APP_DIR}/Install" "${APP_DIR}/your_script.sh"
     echo "post_install"
 }
 
