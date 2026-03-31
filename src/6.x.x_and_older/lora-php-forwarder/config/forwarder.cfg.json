@@ -1,0 +1,6 @@
+{
+  "php_server_url": "http://192.168.28.55/lorareceive.php",
+  "listen_host": "0.0.0.0",
+  "listen_port": 1700,
+  "log_file": "/var/log/lora_forwarder.log"
+}

@@ -1,0 +1,6 @@
+{
+  "AppName": "lora-php-forwarder",
+  "AppVersion": "1.0.0",
+  "AppDescription": "Forwards LoRa frames to a PHP server via HTTP POST (mPower 6.x.x)",
+  "AppVersionNotes": "Initial release for firmware 6.x.x and older"
+}
