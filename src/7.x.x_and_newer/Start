@@ -126,6 +126,11 @@ function SetEnv {
 
 # This function can be used to chmod files and implement any security initialization
 function CreateAccess {
+    # Ensure all app scripts are executable.
+    # Required when files are uploaded directly to the device (e.g. via SFTP
+    # to /home) and may have lost their execute permission (+x bit).
+    # Uncomment and adapt to match your app's script names:
+    # chmod +x "${APP_DIR}/Start" "${APP_DIR}/Install" "${APP_DIR}/your_script.sh"
     echo "CreateAccess:"
 }
 

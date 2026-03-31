@@ -90,7 +90,15 @@ if [ "$IPK_COUNT" -eq 0 ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 4. Create the .tar.gz package
+# 4. Ensure shell scripts are executable before packaging
+#    (critical: files uploaded from Windows or copied via SFTP may lose +x)
+# ---------------------------------------------------------------------------
+echo "Setting executable permissions on shell scripts..."
+chmod +x Start Install forwarder.sh handle_packet.sh
+echo "chmod +x done."
+
+# ---------------------------------------------------------------------------
+# 5. Create the .tar.gz package
 # ---------------------------------------------------------------------------
 echo ""
 echo "Building package..."

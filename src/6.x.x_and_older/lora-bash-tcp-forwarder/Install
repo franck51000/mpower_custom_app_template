@@ -45,7 +45,16 @@ function install_packages {
 }
 
 function post_install {
-    echo "post_install"
+    # Ensure all app scripts are executable.
+    # This is a safety net for cases where files were uploaded directly to
+    # the device (e.g. via SFTP to /home) and may have lost their +x bit.
+    local APP_HOME="${APP_DIR:-$(cd "$(dirname "$0")" && pwd)}"
+    echo "post_install: chmod +x on app scripts in ${APP_HOME}"
+    chmod +x "${APP_HOME}/Start" \
+             "${APP_HOME}/Install" \
+             "${APP_HOME}/forwarder.sh" \
+             "${APP_HOME}/handle_packet.sh"
+    logger -t Install "post_install: chmod +x completed on app scripts"
 }
 
 function remove_packages {
