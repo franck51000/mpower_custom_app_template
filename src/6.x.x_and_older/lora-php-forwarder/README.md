@@ -1,5 +1,46 @@
 # lora-php-forwarder — mPower Firmware 6.x.x
 
+## ⚡ Démarrage rapide — Créer et installer le package / Quick Start — Build and Install
+
+> **Pour créer le fichier `.tar.gz` prêt à installer sur la gateway mPower :**
+
+### Étape 1 — Obtenir le fichier `.ipk` python3-requests
+
+Téléchargez le paquet compatible avec votre gateway (architecture ARM) et placez-le dans `provisioning/` :
+
+```bash
+# Dans le dossier lora-php-forwarder/
+# Adaptez l'URL selon la version OpenWRT compatible avec votre firmware mPower
+# (ex: 21.02.7 — vérifiez sur https://downloads.openwrt.org/releases/)
+wget https://downloads.openwrt.org/releases/21.02.7/packages/arm_arm926ej-s/packages/python3-requests_2.27.1-1_arm_arm926ej-s.ipk
+mv python3-requests_*.ipk provisioning/python3-requests_2.27.1-1_arm926ejste.ipk
+```
+
+### Étape 2 — Lancer le script de packaging
+
+```bash
+# Dans le dossier lora-php-forwarder/
+./build_package.sh
+```
+
+Le script vérifie les prérequis et génère automatiquement :  
+**`lora-php-forwarder_1.0.0.tar.gz`**
+
+### Étape 3 — Installer sur la gateway mPower 6.x.x
+
+**Via l'interface web :**
+1. Connectez-vous à l'interface web mPower
+2. Allez dans **Apps > Custom Apps**
+3. Uploadez `lora-php-forwarder_1.0.0.tar.gz`
+
+**Via SSH :**
+```bash
+scp lora-php-forwarder_1.0.0.tar.gz admin@<gateway-ip>:/tmp/
+ssh admin@<gateway-ip> 'app-manager --install /tmp/lora-php-forwarder_1.0.0.tar.gz'
+```
+
+---
+
 ## Description / Description
 
 **FR:** Application custom mPower pour firmware **6.x.x et antérieur**.  
@@ -75,8 +116,9 @@ Le fichier `.ipk` doit être compatible avec l'architecture ARM de la gateway (e
 
 **Option 1 — Télécharger depuis le dépôt OpenWRT :**
 ```bash
-# Remplacer l'URL par la version compatible avec votre firmware
-wget https://downloads.openwrt.org/releases/21.02.x/packages/arm_arm926ej-s/packages/python3-requests_2.27.1-1_arm_arm926ej-s.ipk
+# Adaptez la version selon votre firmware mPower (ex: 21.02.7)
+# Vérifiez les releases disponibles sur https://downloads.openwrt.org/releases/
+wget https://downloads.openwrt.org/releases/21.02.7/packages/arm_arm926ej-s/packages/python3-requests_2.27.1-1_arm_arm926ej-s.ipk
 ```
 
 **Option 2 — Extraire depuis un Conduit existant :**
@@ -92,12 +134,21 @@ Renommez le fichier comme indiqué dans `provisioning/p_manifest.json` et placez
 
 ## Packaging / Creating the .tar.gz
 
+Utilisez le script `build_package.sh` fourni (recommandé) :
+
 ```bash
 cd src/6.x.x_and_older/lora-php-forwarder/
 
-# Placer le fichier .ipk dans provisioning/ avant de packager
-# cp /chemin/vers/python3-requests_*.ipk provisioning/
+# 1. Placer le fichier .ipk dans provisioning/ avant de packager
+cp /chemin/vers/python3-requests_*.ipk provisioning/python3-requests_2.27.1-1_arm926ejste.ipk
 
+# 2. Lancer le script de packaging
+./build_package.sh
+# → génère : lora-php-forwarder_1.0.0.tar.gz
+```
+
+**Ou manuellement :**
+```bash
 tar -czf lora-php-forwarder_1.0.0.tar.gz \
     manifest.json \
     Start \

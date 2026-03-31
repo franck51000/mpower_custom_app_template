@@ -5,6 +5,9 @@ dev/
 *.tar.gz
 *.tgz
 
+# OpenWRT binary packages (must be added manually to provisioning/ before packaging)
+*.ipk
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
