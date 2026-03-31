@@ -1,0 +1,6 @@
+{
+  "AppName": "lora-php-forwarder",
+  "AppVersion": "1.0.0",
+  "AppDescription": "Forwards LoRa frames to a PHP server via HTTP POST",
+  "AppVersionNotes": "Initial release"
+}
