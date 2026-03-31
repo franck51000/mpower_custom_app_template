@@ -117,7 +117,7 @@ LAST_FRAME_TMP="${LAST_FRAME_FILE}.tmp"
     printf '"gateway_eui":"%s",' "$GW_EUI"
     printf '"size":%d,' "$PKT_SIZE"
     printf '"raw_hex":"%s",' "$HEX"
-    printf '"lora_data":%s' "${JSON_PAYLOAD:-{\}}"
+    printf '"lora_data":%s' "${JSON_PAYLOAD:-{}}"
     printf '}\n'
 } > "$LAST_FRAME_TMP"
 
