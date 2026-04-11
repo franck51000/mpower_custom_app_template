@@ -1,0 +1,10 @@
+#!/bin/bash
+echo "Installing lora-php-forwarder dependencies..."
+if command -v pip3 &> /dev/null; then
+    pip3 install requests
+    echo "requests installed."
+else
+    echo "pip3 not found, assuming requests is already available."
+fi
+echo "Installation complete."
+exit 0
